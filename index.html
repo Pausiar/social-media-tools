@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pausiar Tools</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #1a1a1e;
+            --bg-sidebar: #141416;
+            --bg-surface: #222226;
+            --bg-hover: #2a2a2f;
+            --bg-input: #1a1a1e;
+            --red: #ff4655;
+            --red-dim: rgba(255, 70, 85, 0.12);
+            --red-hover: rgba(255, 70, 85, 0.08);
+            --green: #4ade80;
+            --yellow: #facc15;
+            --text: #e8e8ec;
+            --text-2: #a1a1aa;
+            --text-3: #63636e;
+            --border: #2e2e33;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px;
+            min-width: 240px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 12px;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            font-size: 17px;
+            font-weight: 700;
+            padding: 8px 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+            letter-spacing: -0.3px;
+        }
+
+        .logo-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            color: var(--text-2);
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 450;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: left;
+            width: 100%;
+        }
+
+        .nav-item:hover { background: var(--bg-hover); color: var(--text); }
+        .nav-item.active { background: var(--red-dim); color: var(--red); font-weight: 550; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+        .sidebar-divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+        .sidebar-label {
+            font-size: 11px; font-weight: 600; color: var(--text-3);
+            text-transform: uppercase; letter-spacing: 0.8px; padding: 8px 12px 4px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto; padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px;
+        }
+
+        .sidebar-footer a {
+            font-size: 11px; color: var(--text-3); text-decoration: none; transition: color 0.15s;
+        }
+        .sidebar-footer a:hover { color: var(--red); }
+
+        /* ── Main ── */
+        .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+        .topbar {
+            padding: 16px 32px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; min-height: 56px;
+        }
+
+        .topbar-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; }
+
+        .content { flex: 1; padding: 32px; max-width: 880px; width: 100%; margin: 0 auto; }
+
+        h2 { font-size: 22px; font-weight: 650; letter-spacing: -0.4px; margin-bottom: 8px; }
+        .subtitle { font-size: 14px; color: var(--text-2); margin-bottom: 28px; line-height: 1.5; }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+        }
+        .card-sm { padding: 16px; }
+        .card-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+        /* ── Grid ── */
+        .grid { display: grid; gap: 12px; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+        @media (max-width: 700px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .content { padding: 20px; }
+        }
+
+        /* ── Inputs ── */
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 12.5px; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
+
+        .input, textarea.input, select.input {
+            width: 100%; padding: 10px 14px; background: var(--bg-input);
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+            font-family: inherit; font-size: 13.5px; transition: border-color 0.15s; outline: none;
+        }
+        .input:focus { border-color: var(--red); }
+        textarea.input { min-height: 80px; resize: vertical; }
+        select.input { cursor: pointer; }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 9px 18px; border-radius: 8px; border: 1px solid transparent;
+            font-family: inherit; font-size: 13px; font-weight: 550; cursor: pointer;
+            transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-red:hover { background: #e63e4d; }
+        .btn-outline { background: none; border-color: var(--border); color: var(--text-2); }
+        .btn-outline:hover { border-color: var(--text-3); color: var(--text); }
+
+        /* ── Result items ── */
+        .res-item {
+            padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13.5px; line-height: 1.45;
+        }
+        .res-item:hover { border-color: var(--red); background: var(--red-hover); }
+        .res-item .hint { font-size: 11px; color: var(--text-3); opacity: 0; transition: opacity 0.15s; white-space: nowrap; margin-left: 12px; }
+        .res-item:hover .hint { opacity: 1; }
+
+        /* ── Score ── */
+        .score-circle {
+            width: 88px; height: 88px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; margin: 0 auto 16px;
+        }
+        .score-num { font-size: 28px; font-weight: 700; line-height: 1; }
+        .score-sub { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+
+        .factor {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--border);
+        }
+        .factor:last-child { border: none; }
+        .factor-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+        .f-good { background: rgba(74,222,128,0.12); color: var(--green); }
+        .f-ok { background: rgba(250,204,21,0.12); color: var(--yellow); }
+        .f-bad { background: var(--red-dim); color: var(--red); }
+
+        /* ── Tags ── */
+        .tag {
+            display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 12px;
+            font-weight: 500; margin: 3px; cursor: pointer; transition: all 0.15s;
+            border: 1px solid var(--border); background: var(--bg-input); color: var(--text-2);
+        }
+        .tag:hover { border-color: var(--red); color: var(--text); }
+        .tag.on { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+        /* ── Tips ── */
+        .tip {
+            padding: 14px 16px; border-radius: 8px; border-left: 3px solid;
+            margin-bottom: 10px; font-size: 13px; line-height: 1.55; background: var(--bg-input);
+        }
+        .tip b { font-weight: 600; }
+        .tip-red { border-color: var(--red); }
+        .tip-yellow { border-color: var(--yellow); }
+        .tip-green { border-color: var(--green); }
+
+        /* ── Stat ── */
+        .stat { text-align: center; padding: 20px 12px; }
+        .stat-num { font-size: 28px; font-weight: 700; color: var(--red); }
+        .stat-label { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+
+        /* ── Idea card ── */
+        .idea {
+            padding: 16px; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 8px; margin-bottom: 10px; transition: border-color 0.15s;
+        }
+        .idea:hover { border-color: var(--red); }
+        .idea-badge { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+        .idea-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+        .idea-desc { font-size: 12.5px; color: var(--text-2); line-height: 1.5; }
+        .idea-meta { margin-top: 10px; font-size: 11px; color: var(--text-3); display: flex; gap: 16px; }
+
+        /* ── Heatmap ── */
+        .heat { display: grid; grid-template-columns: 50px repeat(7, 1fr); gap: 2px; }
+        .heat-cell { padding: 7px 4px; text-align: center; font-size: 10px; border-radius: 4px; color: var(--text-3); }
+        .heat-head { font-weight: 600; color: var(--text-2); font-size: 11px; }
+        .h1 { background: rgba(255,70,85,0.06); } .h2 { background: rgba(255,70,85,0.14); }
+        .h3 { background: rgba(255,70,85,0.25); color: var(--text-2); }
+        .h4 { background: rgba(255,70,85,0.40); color: var(--text); }
+        .h5 { background: rgba(255,70,85,0.65); color: #fff; font-weight: 600; }
+
+        /* ── Thumb preview ── */
+        .thumb {
+            padding: 20px; border-radius: 8px; text-align: center; border: 1px solid var(--border);
+            cursor: pointer; transition: border-color 0.15s; background: var(--bg-input);
+        }
+        .thumb:hover { border-color: var(--red); }
+        .thumb-text { font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .thumb-sub { font-size: 10px; color: var(--text-3); }
+
+        /* ── Desc preview ── */
+        .desc-box {
+            background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px;
+            padding: 16px; font-size: 13px; line-height: 1.7; white-space: pre-wrap; position: relative;
+        }
+        .desc-box .cpb {
+            position: absolute; top: 8px; right: 8px; background: var(--bg-surface);
+            border: 1px solid var(--border); color: var(--text-3); padding: 4px 10px;
+            border-radius: 6px; font-size: 11px; cursor: pointer; font-family: inherit;
+        }
+        .desc-box .cpb:hover { color: var(--red); border-color: var(--red); }
+
+        /* ── Checklist ── */
+        .ck {
+            display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px;
+            background: var(--bg-input); border-radius: 8px; margin-bottom: 6px;
+            font-size: 13px; line-height: 1.5;
+        }
+        .ck input { margin-top: 3px; accent-color: var(--red); width: 16px; height: 16px; cursor: pointer; }
+
+        /* ── Phase timeline ── */
+        .phase { position: relative; padding-left: 28px; margin-bottom: 20px; }
+        .phase::before { content: ''; position: absolute; left: 9px; top: 24px; bottom: -20px; width: 1px; background: var(--border); }
+        .phase:last-child::before { display: none; }
+        .phase-dot {
+            position: absolute; left: 0; top: 2px; width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; color: #fff; background: var(--red);
+        }
+        .phase h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+
+        /* ── Sections ── */
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; background: var(--bg-surface);
+            border: 1px solid var(--green); color: var(--green); padding: 10px 18px;
+            border-radius: 8px; font-size: 12.5px; font-weight: 500;
+            transform: translateY(80px); opacity: 0; transition: all 0.25s; z-index: 999;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        .empty { text-align: center; padding: 48px 20px; color: var(--text-3); }
+        .empty-icon { font-size: 32px; margin-bottom: 10px; }
+        .empty-text { font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-logo"><span class="logo-dot"></span> Pausiar Tools</div>
+
+    <div class="sidebar-label">Herramientas</div>
+    <button class="nav-item active" onclick="go('dashboard', this)"><span class="nav-icon">📊</span> Dashboard</button>
+    <button class="nav-item" onclick="go('titles', this)"><span class="nav-icon">✍️</span> Títulos</button>
+    <button class="nav-item" onclick="go('analyzer', this)"><span class="nav-icon">🔍</span> Analizador</button>
+    <button class="nav-item" onclick="go('hashtags', this)"><span class="nav-icon">#</span> Hashtags</button>
+    <button class="nav-item" onclick="go('ideas', this)"><span class="nav-icon">💡</span> Ideas</button>
+    <button class="nav-item" onclick="go('thumbs', this)"><span class="nav-icon">🖼</span> Thumbnails</button>
+    <button class="nav-item" onclick="go('desc', this)"><span class="nav-icon">📝</span> Descripciones</button>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Planificación</div>
+    <button class="nav-item" onclick="go('schedule', this)"><span class="nav-icon">📅</span> Horarios</button>
+    <button class="nav-item" onclick="go('strategy', this)"><span class="nav-icon">🚀</span> Estrategia</button>
+    <button class="nav-item" onclick="go('checklist', this)"><span class="nav-icon">✅</span> Checklist</button>
+
+    <div class="sidebar-footer">
+        <a href="https://www.youtube.com/@Pausiar" target="_blank">YouTube</a>
+        <a href="https://www.tiktok.com/@pausiarog" target="_blank">TikTok</a>
+        <a href="https://www.twitch.tv/pausiar" target="_blank">Twitch</a>
+    </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+    <div class="topbar"><div class="topbar-title" id="topbar-title">Dashboard</div></div>
+
+    <div class="content">
+
+        <!-- DASHBOARD -->
+        <section id="s-dashboard" class="section active">
+            <h2>Hola, Pausiar</h2>
+            <p class="subtitle">Tu centro de optimización de contenido para Valorant.</p>
+
+            <div class="grid grid-3" style="margin-bottom: 20px;">
+                <div class="card card-sm stat"><div class="stat-num">206</div><div class="stat-label">Seguidores TikTok</div></div>
+                <div class="card card-sm stat"><div class="stat-num">3,092</div><div class="stat-label">Likes TikTok</div></div>
+                <div class="card card-sm stat"><div class="stat-num">81+</div><div class="stat-label">Días Road to Immortal</div></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Diagnóstico rápido</div>
+                <div class="tip tip-red"><b>Títulos repetitivos.</b> Todos empiezan con "Día X". Esto crea fatiga y el algoritmo deja de recomendar.</div>
+                <div class="tip tip-yellow"><b>Oportunidad en el drama.</b> "Ragebaiteo un KAYO" → 1,843 views vs ~300 en tus diarios. Los títulos emocionales dan 5x más alcance.</div>
+                <div class="tip tip-green"><b>Consistencia excepcional.</b> 81 días seguidos publicando. El algoritmo premia esto — estás construyendo una base sólida.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">4 cambios inmediatos</div>
+                <div class="tip tip-red"><b>1. El gancho va primero.</b> En vez de "Día 82. Gané jugando fatal" → "GANÉ JUGANDO FATAL 😱 Road to Immortal".</div>
+                <div class="tip tip-red"><b>2. Mezcla contenido.</b> Alterna resúmenes con: tips, mejores momentos semanales, opinion sobre updates, compilaciones.</div>
+                <div class="tip tip-yellow"><b>3. Hook en 2 segundos.</b> Empieza con tu mejor momento o una frase provocadora. El resumen del día va después.</div>
+                <div class="tip tip-yellow"><b>4. YouTube Shorts.</b> Sube el mismo contenido de TikTok en Shorts. YouTube lo está empujando.</div>
+            </div>
+        </section>
+
+        <!-- TITLES -->
+        <section id="s-titles" class="section">
+            <h2>Generador de títulos</h2>
+            <p class="subtitle">Describe tu sesión de juego y genera títulos optimizados para engagement.</p>
+            <div class="grid grid-2">
+                <div>
+                    <div class="field"><label>¿Qué pasó hoy?</label><textarea class="input" id="t-ctx" placeholder="Ej: Hice un ace clutch, un troll me arruinó la ranked, subí a Immortal..."></textarea></div>
+                    <div class="field"><label>Rango actual</label><select class="input" id="t-rank"><option>Ascendant 3</option><option>Ascendant 2</option><option>Ascendant 1</option><option>Immortal 1</option><option>Immortal 2</option><option>Immortal 3</option><option>Radiant</option></select></div>
+                    <div class="grid grid-2">
+                        <div class="field"><label>Plataforma</label><select class="input" id="t-plat"><option value="tiktok">TikTok</option><option value="youtube">YouTube</option><option value="shorts">YT Shorts</option></select></div>
+                        <div class="field"><label>Estilo</label><select class="input" id="t-style"><option value="engagement">Máximo engagement</option><option value="curiosity">Curiosidad</option><option value="emotional">Emocional</option><option value="achievement">Logro</option><option value="educational">Educativo</option><option value="controversial">Controversial</option></select></div>
+                    </div>
+                    <button class="btn btn-red" onclick="genTitles()">Generar títulos</button>
+                </div>
+                <div id="t-out"><div class="empty"><div class="empty-icon">✍️</div><div class="empty-text">Describe tu sesión para generar títulos</div></div></div>
+            </div>
+        </section>
+
+        <!-- ANALYZER -->
+        <section id="s-analyzer" class="section">
+            <h2>Analizador de títulos</h2>
+            <p class="subtitle">Pega tu título y analiza su potencial de engagement.</p>
+            <div class="grid grid-2">
+                <div>
+                    <div class="field"><label>Tu título</label><input class="input" id="a-input" placeholder="Ej: Día 82. Ascendant 3 al fin"></div>
+                    <button class="btn btn-red" onclick="analyze()">Analizar</button>
+                </div>
+                <div id="a-out"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Escribe un título para analizar</div></div></div>
+            </div>
+        </section>
+
+        <!-- HASHTAGS -->
+        <section id="s-hashtags" class="section">
+            <h2>Hashtags</h2>
+            <p class="subtitle">Selecciona hashtags y cópialos de un click.</p>
+            <div class="grid grid-2" style="margin-bottom: 20px;">
+                <div class="field"><label>Plataforma</label><select class="input" id="h-plat" onchange="renderTags()"><option value="tiktok">TikTok</option><option value="youtube">YouTube</option></select></div>
+                <div class="field"><label>Tipo de contenido</label><select class="input" id="h-type" onchange="renderTags()"><option value="gameplay">Gameplay / Clips</option><option value="road">Road to Immortal</option><option value="tips">Tips / Guías</option><option value="funny">Momentos graciosos</option><option value="ranked">Ranked</option><option value="news">Noticias</option></select></div>
+            </div>
+            <div id="h-tags"></div>
+            <div id="h-output" class="card card-sm" style="display:none; margin-top: 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                    <span style="font-size:12px; font-weight:600; color:var(--text-2);">Seleccionados</span>
+                    <button class="btn btn-outline" style="padding:4px 12px; font-size:11px;" onclick="copyTags()">Copiar</button>
+                </div>
+                <div id="h-sel" style="font-size:13px; color:var(--red); word-break:break-all;"></div>
+            </div>
+        </section>
+
+        <!-- IDEAS -->
+        <section id="s-ideas" class="section">
+            <h2>Ideas de contenido</h2>
+            <p class="subtitle">Ideas frescas para variar tu contenido y atraer nueva audiencia.</p>
+            <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+                <div class="field" style="margin-bottom:0;"><select class="input" id="i-cat" style="width:auto;"><option value="all">Todas</option><option value="viral">Alto potencial</option><option value="series">Series</option><option value="educational">Educativo</option><option value="entertainment">Entretenimiento</option><option value="challenge">Retos</option></select></div>
+                <button class="btn btn-red" onclick="genIdeas()">Generar ideas</button>
+            </div>
+            <div id="i-out"></div>
+        </section>
+
+        <!-- THUMBNAILS -->
+        <section id="s-thumbs" class="section">
+            <h2>Texto para thumbnails</h2>
+            <p class="subtitle">Máximo 3-4 palabras, fuente grande, contraste alto. Click para copiar.</p>
+            <div class="field"><label>¿De qué trata el vídeo?</label><input class="input" id="th-ctx" placeholder="Ej: llegué a immortal, ace clutch, perdí todo mi elo"></div>
+            <button class="btn btn-red" onclick="genThumbs()">Generar textos</button>
+            <div id="th-out" style="margin-top:20px;"></div>
+        </section>
+
+        <!-- DESCRIPTIONS -->
+        <section id="s-desc" class="section">
+            <h2>Descripciones</h2>
+            <p class="subtitle">Genera descripciones listas para copiar y pegar.</p>
+            <div class="grid grid-2">
+                <div>
+                    <div class="field"><label>Título del vídeo</label><input class="input" id="d-title" placeholder="Ej: GANÉ CON 5 KILLS - Road to Immortal"></div>
+                    <div class="field"><label>Resumen</label><textarea class="input" id="d-sum" placeholder="Ej: Clutch de 1v3 en Haven con Miks"></textarea></div>
+                    <div class="field"><label>Plataforma</label><select class="input" id="d-plat"><option value="youtube">YouTube</option><option value="tiktok">TikTok</option></select></div>
+                    <button class="btn btn-red" onclick="genDesc()">Generar</button>
+                </div>
+                <div id="d-out"><div class="empty"><div class="empty-icon">📝</div><div class="empty-text">Rellena los campos para generar</div></div></div>
+            </div>
+        </section>
+
+        <!-- SCHEDULE -->
+        <section id="s-schedule" class="section">
+            <h2>Horarios de publicación</h2>
+            <p class="subtitle">Mejores momentos para publicar gaming/Valorant en España. Más oscuro = mejor.</p>
+            <div class="field" style="max-width:200px;"><select class="input" id="sc-plat" onchange="renderHeat()"><option value="tiktok">TikTok</option><option value="youtube">YouTube</option></select></div>
+            <div id="sc-grid" style="margin-bottom:20px;"></div>
+            <div class="tip tip-green"><b>TikTok:</b> 18:00–21:00, martes/jueves/domingos. <b>YouTube:</b> 16:00–19:00, jueves/sábados.</div>
+        </section>
+
+        <!-- STRATEGY -->
+        <section id="s-strategy" class="section">
+            <h2>Plan de crecimiento</h2>
+            <p class="subtitle">De 206 a 1,000+ seguidores — paso a paso.</p>
+            <div class="phase">
+                <div class="phase-dot">1</div>
+                <h3>Semana 1-2: Optimización</h3>
+                <div class="tip tip-red"><b>Reformula títulos:</b> Gancho primero, "Día X" al final.<br><b>Hook en 1-2 seg:</b> Empieza con el mejor clip, nunca con "Hola, día X".<br><b>YouTube Shorts:</b> Sube lo mismo en ambas plataformas.<br><b>Cortes rápidos:</b> Máx 3-4 seg por clip, sin silencios.</div>
+            </div>
+            <div class="phase">
+                <div class="phase-dot">2</div>
+                <h3>Semana 3-4: Diversificación</h3>
+                <div class="tip tip-yellow"><b>50/50:</b> Road to Immortal + contenido variado (tips, fails, tier lists).<br><b>1 educativo/semana:</b> "3 errores en Ascendant" — alta retención y shares.<br><b>Reacciona a clips/noticias</b> de Valorant para engagement.<br><b>Usa sonidos trending</b> de TikTok adaptados a Valorant.</div>
+            </div>
+            <div class="phase">
+                <div class="phase-dot">3</div>
+                <h3>Mes 2: Comunidad</h3>
+                <div class="tip tip-green"><b>Comenta en creadores grandes</b> — genuino, no spam.<br><b>Duetos/Stitches</b> para exposición a otras audiencias.<br><b>Haz preguntas:</b> "¿Hubierais hecho lo mismo?" multiplica comentarios.<br><b>Responde TODO</b> en las primeras 2 horas.</div>
+            </div>
+            <div class="phase">
+                <div class="phase-dot">4</div>
+                <h3>Mes 3+: Escalado</h3>
+                <div class="tip tip-green"><b>YouTube largo:</b> Compilaciones de 10-15 min semanales.<br><b>Collabs</b> con creadores de 200-2000 seguidores.<br><b>Nicho:</b> "El Ascendant que mejora en directo".<br><b>Cross-platform:</b> TikTok → YouTube → Twitch.</div>
+            </div>
+        </section>
+
+        <!-- CHECKLIST -->
+        <section id="s-checklist" class="section">
+            <h2>Checklist pre-publicación</h2>
+            <p class="subtitle">Revisa antes de cada vídeo.</p>
+            <div class="ck"><input type="checkbox"><span><b>¿El título empieza con un gancho?</b> Nunca con "Día X". Emoción, dato o pregunta primero.</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Los primeros 2 seg enganchan?</b> Tu mejor clip o frase impactante al inicio.</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿4-6 hashtags relevantes?</b> Mezcla grandes (#valorant) con nicho (#roadtoimmortal).</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Tiene subtítulos/texto?</b> El 80% de TikTok se ve sin sonido.</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Horario óptimo?</b> España: 18-21h TikTok, 16-19h YouTube.</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Subido en ambas plataformas?</b> TikTok + YouTube Shorts siempre.</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Tiene CTA?</b> "Sígueme", "¿Qué opináis?", "Dale like si..."</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Estarás activo 30 min después?</b> Responde cada comentario al inicio.</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Descripción con keywords?</b> Valorant, rango, agente, mapa.</span></div>
+            <div class="ck"><input type="checkbox"><span><b>¿Thumbnail con texto grande?</b> 3-4 palabras, fuente gruesa, contraste alto.</span></div>
+        </section>
+
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Nav ──
+const titles={dashboard:'Dashboard',titles:'Generador de títulos',analyzer:'Analizador',hashtags:'Hashtags',ideas:'Ideas',thumbs:'Thumbnails',desc:'Descripciones',schedule:'Horarios',strategy:'Estrategia',checklist:'Checklist'};
+function go(id,el){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('s-'+id).classList.add('active');el.classList.add('active');document.getElementById('topbar-title').textContent=titles[id]||'';}
+
+// ── Toast / Copy ──
+function toast(m='Copiado'){const t=document.getElementById('toast');t.textContent='✓ '+m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+function cp(t){navigator.clipboard.writeText(t).then(()=>toast());}
+
+// ── Title Generator ──
+const tpl={
+    engagement:["{H} y NO ME LO CREO 🔥 Road to Immortal","ESTO cambia TODO 😱 {H}","{H} 🤯 El momento más LOCO","NO DEBERÍAS HACER ESTO en {R}... 😈 {H}","{H} — ¿es LEGAL en Valorant?","Me pasó lo PEOR en {R}... {H}"],
+    curiosity:["¿Por qué NADIE hace esto en {R}? {H}","Descubrí algo ROTO en Valorant... {H}","Lo que NO te cuentan de {R} 👀","El SECRETO de {R} que nadie te dice","Probé algo DIFERENTE y pasó esto 🤯 {H}","POV: Descubres el meta secreto de {R}"],
+    emotional:["CASI LLORO 😭 {H} | Road to Immortal","La partida más TENSA de mi vida 😰 {H}","Del RAGE al CLUTCH 😤→😎 {H}","NO PUEDO MÁS 😤 {H}","La REVANCHA más ÉPICA 🔥 {H}","Gané la partida IMPOSIBLE 🥹 {H}"],
+    achievement:["POR FIN 🏆 {H}","LO CONSEGUÍ 🎉 {H} después de 80+ días","NUEVA MARCA PERSONAL 📈 {H}","De HARDSTUCK a {H} 💪","Mi MEJOR partida EVER — {H}"],
+    educational:["3 ERRORES que te mantienen en {R} 📚","Cómo SALÍ de {R} — Guía REAL 🎯","DEJA de hacer esto para subir de {R}","El WARM-UP que me subió a {R} ⌨️","SETTINGS de un {R} — Config completa 🖥️"],
+    controversial:["Valorant ranked está ROTO — aquí la prueba 💀","Los TROLLS de {R} son OTRA COSA... {H}","{R} es el PEOR rango y voy a demostrarlo","Riot NO quiere que subas de {R}... {H}","Me matchearon con un CHETO y pasó esto {H}"]
+};
+
+function hook(ctx){const c=ctx.toLowerCase();if(c.includes('ace'))return'ACE CLUTCH';if(c.includes('clutch'))return'CLUTCH imposible';if(c.match(/1v\d/))return c.match(/1v\d/)[0].toUpperCase();if(c.includes('troll'))return'un TROLL me arruinó todo';if(c.includes('perd'))return'PERDÍ todo';if(c.includes('gan'))return'GANÉ jugando FATAL';if(c.includes('sub'))return'SUBÍ de rango';if(c.includes('baj'))return'BAJÉ de rango';if(c.includes('cheto')||c.includes('hacker'))return'jugué contra un CHETO';if(c.includes('mvp'))return'MVP de la partida';if(c.includes('4k'))return'4K brutal';if(c.includes('immortal'))return'IMMORTAL está cerca';if(c.includes('miks')||c.includes('mixs'))return'MIKS está ROTO';return ctx.split(/[.,!?]/)[0].trim().substring(0,40);}
+
+function genTitles(){
+    const ctx=document.getElementById('t-ctx').value.trim();
+    if(!ctx){document.getElementById('t-out').innerHTML='<div class="tip tip-red">Describe tu sesión primero.</div>';return;}
+    const r=document.getElementById('t-rank').value,s=document.getElementById('t-style').value,h=hook(ctx);
+    const pool=[...(tpl[s]||tpl.engagement)].sort(()=>Math.random()-0.5).slice(0,6);
+    const res=pool.map(t=>t.replace(/{H}/g,h).replace(/{R}/g,r));
+    const c=ctx.toLowerCase();
+    if(c.includes('ace')||c.includes('clutch'))res.push('El CLUTCH que me cambió la VIDA en '+r+' 😱');
+    if(c.includes('perd')||c.includes('baj'))res.push('ADIÓS '+r+'... 💔 El peor día del road');
+    if(c.includes('gan')||c.includes('sub'))res.push('DE ESTO VA escalar en Valorant 🔥');
+    let html='';
+    res.forEach(t=>{const e=t.replace(/'/g,"\\'").replace(/"/g,'&quot;');html+='<div class="res-item" onclick="cpItem(this,\''+e+'\')"><span>'+t+'</span><span class="hint">copiar</span></div>';});
+    document.getElementById('t-out').innerHTML=html;
+}
+function cpItem(el,t){cp(t);el.querySelector('.hint').textContent='✓';setTimeout(()=>el.querySelector('.hint').textContent='copiar',1200);}
+
+// ── Analyzer ──
+function analyze(){
+    const t=document.getElementById('a-input').value.trim();if(!t)return;const f=[];let total=0;
+    const len=t.length;let ls=len>=30&&len<=70?10:len>=20&&len<=90?7:4;f.push({n:'Longitud',s:ls,t:len<30?'Muy corto':len>70?'Muy largo':'Perfecta'});total+=ls;
+    const ec=(t.match(/[\u{1F300}-\u{1FAFF}]/gu)||[]).length;let es=ec>=1&&ec<=3?10:ec===0?4:6;f.push({n:'Emojis',s:es,t:ec===0?'Añade 1-2 emojis':ec>3?'Demasiados':'Bien'});total+=es;
+    const cw=t.split(' ').filter(w=>w===w.toUpperCase()&&w.length>2).length;let cs=cw>=1&&cw<=3?10:cw===0?3:5;f.push({n:'Énfasis CAPS',s:cs,t:cw===0?'Pon 1-3 palabras en MAYÚSCULAS':cw>3?'Demasiadas CAPS':'Bien'});total+=cs;
+    const sd=/^d[ií]a\s+\d/i.test(t);let hs=sd?2:/^[¿!🔥😱🤯💀]|^[A-Z]{2,}/.test(t)?10:6;f.push({n:'Gancho inicial',s:hs,t:sd?'⚠ NO empieces con "Día X"':hs>=8?'Buen gancho':'Podría ser más impactante'});total+=hs;
+    const ew=['increíble','imposible','mejor','peor','loco','épico','brutal','roto','secreto','error','nunca'];const he=ew.some(w=>t.toLowerCase().includes(w));const hq=t.includes('?')||t.includes('¿');let em=3+(he?4:0)+(hq?3:0);em=Math.min(em,10);f.push({n:'Emoción',s:em,t:!he?'Usa palabras emocionales: IMPOSIBLE, LOCO...':'Bien'});total+=em;
+    const vk=['valorant','ranked','clutch','ace','immortal','radiant','ascendant','miks','reyna','jett'];const vc=vk.filter(w=>t.toLowerCase().includes(w)).length;let vs=Math.min(vc*3,10);if(vc===0)vs=2;f.push({n:'Keywords Valorant',s:vs,t:vc===0?'Incluye al menos 1 keyword':'Bien'});total+=vs;
+    const hn=/\d/.test(t);let ns=hn?8:4;f.push({n:'Números',s:ns,t:hn?'Bien':'Añade un número: "1v3", "+50 ELO"'});total+=ns;
+
+    const pct=Math.round((total/70)*100);const col=pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)';const lbl=pct>=80?'Excelente':pct>=60?'Mejorable':pct>=40?'Necesita trabajo':'Reescríbelo';
+    let html='<div class="score-circle" style="border:3px solid '+col+';"><div class="score-num" style="color:'+col+';">'+pct+'</div><div class="score-sub">/100</div></div><div style="text-align:center;font-size:13px;font-weight:600;color:'+col+';margin-bottom:16px;">'+lbl+'</div>';
+    f.forEach(x=>{const c=x.s>=8?'f-good':x.s>=5?'f-ok':'f-bad';html+='<div class="factor"><span style="color:var(--text-2)">'+x.n+'</span><span class="factor-badge '+c+'">'+x.s+'/10</span></div>';});
+    html+='<div style="margin-top:14px;">';f.filter(x=>x.s<8).forEach(x=>{html+='<div class="tip '+(x.s<5?'tip-red':'tip-yellow')+'" style="font-size:12px;">'+x.t+'</div>';});html+='</div>';
+    document.getElementById('a-out').innerHTML=html;
+}
+
+// ── Hashtags ──
+const hdb={
+    tiktok:{gameplay:{c:['#valorant','#valorantesp','#valorantclips','#gaming'],n:['#clutch','#ace','#gameplay','#valorantmoments'],g:['#fyp','#parati','#viral','#foryou'],t:['#esports','#pcgaming','#fps','#gamertiktok']},road:{c:['#valorant','#valorantesp','#roadtoimmortal','#ranked'],n:['#ascendant','#immortal','#rankup','#valorantranked'],g:['#fyp','#parati','#viral','#gaming'],t:['#improvement','#dedication','#grind']},tips:{c:['#valorant','#valoranttips','#valorantesp','#valorantguide'],n:['#gamingtips','#aimtraining','#crosshair','#rankedup'],g:['#fyp','#parati','#viral','#learnontiktok'],t:['#tutorial','#tipstricks','#guide']},funny:{c:['#valorant','#valorantesp','#funny','#valorantfunny'],n:['#fail','#rage','#toxicvalorant','#gamermoments'],g:['#fyp','#parati','#viral','#comedy'],t:['#funnygaming','#meme','#humor']},ranked:{c:['#valorant','#valorantesp','#ranked','#competitive'],n:['#valorantranked','#elo','#mmr','#ascendant'],g:['#fyp','#parati','#viral','#gaming'],t:['#esports','#tryhard','#grindmode']},news:{c:['#valorant','#valorantesp','#valorantnews','#update'],n:['#patch','#newagent','#meta','#riotgames'],g:['#fyp','#parati','#viral','#gamingnews'],t:['#breaking','#esports','#update2026']}},
+    youtube:{gameplay:{c:['#Valorant','#ValorantGameplay','#ValorantClips','#Gaming'],n:['#Clutch','#ACE','#FPS','#Gameplay'],g:['#Shorts','#ValorantShorts','#GamingShorts'],t:['#Esports','#PCGaming']},road:{c:['#Valorant','#RoadToImmortal','#Ranked','#ValorantRanked'],n:['#Ascendant','#Immortal','#RankUp'],g:['#Shorts','#ValorantShorts','#GamingShorts'],t:['#Grind','#Gaming']},tips:{c:['#Valorant','#ValorantTips','#ValorantGuide','#HowTo'],n:['#AimTraining','#GameSense','#Settings'],g:['#Shorts','#ValorantShorts','#Tutorial'],t:['#Guide','#Tips']},funny:{c:['#Valorant','#ValorantFunny','#Funny','#Gaming'],n:['#Fail','#Rage','#FunnyMoments'],g:['#Shorts','#ValorantShorts','#Memes'],t:['#Comedy','#GamingMemes']},ranked:{c:['#Valorant','#Ranked','#Competitive','#ValorantRanked'],n:['#RankUp','#Immortal','#Elo'],g:['#Shorts','#ValorantShorts'],t:['#Esports','#Tryhard']},news:{c:['#Valorant','#ValorantNews','#Update','#Patch'],n:['#NewAgent','#Meta','#RiotGames'],g:['#Shorts','#ValorantShorts','#GamingNews'],t:['#Breaking','#ValorantUpdate']}}
+};
+let selTags=new Set();
+function renderTags(){selTags.clear();const p=document.getElementById('h-plat').value,ty=document.getElementById('h-type').value,d=hdb[p]?.[ty];if(!d)return;const cats=[{k:'c',l:'Core'},{k:'n',l:'Nicho'},{k:'g',l:'Crecimiento'},{k:'t',l:'Trending'}];let html='';cats.forEach(cat=>{html+='<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">'+cat.l+'</div><div>';d[cat.k].forEach(tag=>{html+='<span class="tag" onclick="togTag(this,\''+tag+'\')">'+tag+'</span>';});html+='</div></div>';});document.getElementById('h-tags').innerHTML=html;document.getElementById('h-output').style.display='none';}
+function togTag(el,tag){if(selTags.has(tag)){selTags.delete(tag);el.classList.remove('on');}else{selTags.add(tag);el.classList.add('on');}const o=document.getElementById('h-output');if(selTags.size===0){o.style.display='none';return;}o.style.display='block';document.getElementById('h-sel').textContent=[...selTags].join(' ');}
+function copyTags(){cp([...selTags].join(' '));}
+renderTags();
+
+// ── Ideas ──
+const ideas={viral:[{t:'"Con esta config gané 200 ELO en una semana"',d:'Muestra setup completo (crosshair, sens, settings) y cómo afectó tu rendimiento.',b:'Alto potencial',dur:'60-90s',dif:'Fácil'},{t:'"Cada rango explicado en 60 segundos"',d:'Tier list rápida con clips propios de cada elo.',b:'Alto potencial',dur:'60s',dif:'Media'},{t:'"1v5 ACE o elimino mi cuenta"',d:'Reto extremo en spike rush. El título genera clicks masivos.',b:'Alto potencial',dur:'30-60s',dif:'Fácil'},{t:'"1000+ horas de Valorant. Esto es lo que aprendí."',d:'Reflexión honesta + clips épicos. Se comparte mucho.',b:'Alto potencial',dur:'90-120s',dif:'Media'},{t:'"Hice las settings de TenZ y pasó esto"',d:'Copia la config de un pro y compara tu rendimiento.',b:'Alto potencial',dur:'60-90s',dif:'Fácil'}],series:[{t:'"Mejores Momentos de la Semana"',d:'Compilación semanal. Más digerible y mayor calidad que los diarios.',b:'Serie',dur:'2-3min / 60s',dif:'Media'},{t:'"Solo [Agente] hasta Immortal"',d:'One-trick challenge. Cada episodio tiene narrativa propia.',b:'Serie',dur:'60-90s',dif:'Media'},{t:'"Coach un suscriptor"',d:'Review de gameplay de seguidores. Engagement brutal.',b:'Serie',dur:'3-5min / 60s',dif:'Alta'}],educational:[{t:'"3 errores de aim que cometes sin saberlo"',d:'Tips rápidos: crosshair placement, counter-strafing, peeking.',b:'Educativo',dur:'30-60s',dif:'Media'},{t:'"Cómo ganar rounds de ECO en Ascendant"',d:'Estrategia específica. Contenido que se guarda y comparte.',b:'Educativo',dur:'60-90s',dif:'Media'},{t:'"El warm-up de 10 min que cambió mi aim"',d:'Tu rutina de calentamiento. Mucho search volume.',b:'Educativo',dur:'60-90s',dif:'Fácil'}],entertainment:[{t:'"Los teammates más TÓXICOS"',d:'Compilación de momentos con trolls + tu reacción.',b:'Entretenimiento',dur:'60-90s',dif:'Fácil'},{t:'"Tierlist de agentes según mi experiencia"',d:'Opinions spicy = debate en comentarios = engagement.',b:'Entretenimiento',dur:'60-90s',dif:'Fácil'},{t:'"Mi evolución: primer clip vs ahora"',d:'Comparativa nostálgica. Progreso = engagement alto.',b:'Entretenimiento',dur:'30-60s',dif:'Fácil'}],challenge:[{t:'"Solo SHERIFF hasta ganar una ranked"',d:'Challenge de arma con tensión natural.',b:'Reto',dur:'60-90s',dif:'Media'},{t:'"Juego sin sonido en Ascendant"',d:'Sin audio. Muestra lo diferente que es sin info sonora.',b:'Reto',dur:'60s',dif:'Fácil'},{t:'"Gano usando solo habilidades"',d:'Con Raze, Sova, Brimstone. Clips garantizados.',b:'Reto',dur:'60-90s',dif:'Alta'}]};
+function genIdeas(){const cat=document.getElementById('i-cat').value;let pool=[];if(cat==='all')Object.values(ideas).forEach(a=>{const s=[...a].sort(()=>Math.random()-0.5);pool.push(...s.slice(0,2));});else pool=[...(ideas[cat]||[])].sort(()=>Math.random()-0.5);let html='';pool.forEach(i=>{html+='<div class="idea"><div class="idea-badge">'+i.b+'</div><div class="idea-title">'+i.t+'</div><div class="idea-desc">'+i.d+'</div><div class="idea-meta"><span>⏱ '+i.dur+'</span><span>Dificultad: '+i.dif+'</span></div></div>';});document.getElementById('i-out').innerHTML=html;}
+genIdeas();
+
+// ── Thumbnails ──
+function genThumbs(){const ctx=document.getElementById('th-ctx').value.trim();if(!ctx)return;const c=ctx.toLowerCase(),s=[];if(c.includes('immortal')){s.push({t:'IMMORTAL??',c:'var(--red)'});s.push({t:'LO LOGRÉ',c:'var(--green)'});s.push({t:'POR FIN 😭',c:'var(--yellow)'});}if(c.includes('ace')||c.includes('clutch')){s.push({t:'ACE CLUTCH',c:'var(--red)'});s.push({t:'IMPOSIBLE',c:'var(--yellow)'});s.push({t:'1v5 ??',c:'var(--green)'});}if(c.includes('perd')||c.includes('baj')){s.push({t:'TODO MAL',c:'var(--red)'});s.push({t:'BAJÉ 💀',c:'var(--red)'});s.push({t:'GG... 😤',c:'var(--yellow)'});}s.push({t:'WTF?!',c:'var(--red)'},{t:'NO WAY',c:'var(--yellow)'},{t:'LOCURA',c:'var(--text)'},{t:'BRUH 💀',c:'var(--text-2)'},{t:'EZ GAME',c:'var(--green)'});let html='<div class="grid grid-3">';s.slice(0,9).forEach(x=>{html+='<div class="thumb" onclick="cp(\''+x.t+'\')"><div class="thumb-text" style="color:'+x.c+'">'+x.t+'</div><div class="thumb-sub">click para copiar</div></div>';});html+='</div><div class="tip tip-green" style="margin-top:16px;"><b>Tips:</b> Máx 3-4 palabras. Fuente gruesa (Impact, Bebas Neue). Tu cara con expresión exagerada +30-40% CTR.</div>';document.getElementById('th-out').innerHTML=html;}
+
+// ── Descriptions ──
+function genDesc(){const t=document.getElementById('d-title').value.trim(),s=document.getElementById('d-sum').value.trim(),p=document.getElementById('d-plat').value;if(!t&&!s)return;let d='';if(p==='youtube'){d=(s||t)+'\n\n🔴 Road to Immortal — documentando mi subida de rango en Valorant.\n\n📌 Sígueme:\n🎵 TikTok: https://www.tiktok.com/@pausiarog\n🟣 Twitch: https://www.twitch.tv/pausiar\n📧 ogpausiar@gmail.com\n\n🖥️ Setup:\n• CPU: Ryzen 7 5700x\n• GPU: RX 6650xt\n• RAM: 16GB 2x8 2667 MHz\n\n⌨️ Settings:\n• DPI: 1600 | Sens: 0.062 | Win: 1\n\n#Valorant #RoadToImmortal #ValorantEsp #Gaming #Shorts';}else{d=(s||t)+'\n\nRoad to Immortal 🔥\n🎮 Twitch: pausiar\n📺 YT: Pausiar\n\n#valorant #valorantesp #roadtoimmortal #fyp #parati #gaming';}document.getElementById('d-out').innerHTML='<div class="desc-box"><button class="cpb" onclick="cp(this.parentElement.querySelector(\'.dt\').textContent)">Copiar</button><div class="dt">'+d+'</div></div>';}
+
+// ── Schedule ──
+function renderHeat(){const p=document.getElementById('sc-plat').value;const days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];const hrs=['10:00','12:00','14:00','16:00','18:00','19:00','20:00','21:00','22:00'];const data={tiktok:{'10:00':[1,1,1,1,1,2,2],'12:00':[2,2,2,2,2,3,3],'14:00':[2,2,2,2,3,3,3],'16:00':[3,3,3,3,3,4,3],'18:00':[3,4,3,4,3,4,5],'19:00':[4,5,4,5,4,5,5],'20:00':[4,4,4,5,4,4,5],'21:00':[3,4,3,4,3,3,4],'22:00':[2,3,2,3,2,2,3]},youtube:{'10:00':[1,1,1,1,1,2,2],'12:00':[2,2,2,2,2,3,2],'14:00':[2,3,2,3,3,3,3],'16:00':[3,3,3,4,3,5,4],'18:00':[4,4,4,5,4,5,4],'19:00':[3,4,3,4,3,4,4],'20:00':[3,3,3,4,3,4,3],'21:00':[2,3,2,3,2,3,3],'22:00':[2,2,2,2,2,2,2]}};const d=data[p];const lb=['','Bajo','Normal','Bueno','Muy bueno','TOP'];let html='<div class="heat"><div class="heat-cell"></div>';days.forEach(x=>html+='<div class="heat-cell heat-head">'+x+'</div>');hrs.forEach(h=>{html+='<div class="heat-cell" style="font-size:10px;color:var(--text-3);">'+h+'</div>';d[h].forEach(v=>html+='<div class="heat-cell h'+v+'">'+lb[v]+'</div>');});html+='</div>';document.getElementById('sc-grid').innerHTML=html;}
+renderHeat();
+</script>
+</body>
+</html>
