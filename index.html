@@ -1344,15 +1344,19 @@
 
     <script>
     // ── Navigation ──
+    function go(sectionId) {
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        const navLink = document.querySelector('.nav-link[data-section="' + sectionId + '"]');
+        if (navLink) navLink.classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-            const section = this.dataset.section;
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
-            window.scrollTo(0, 0);
+            go(this.dataset.section);
         });
     });
 
@@ -1436,19 +1440,13 @@
         const avgViews = Math.round(channelData.viewCount / (channelData.videoCount || 1));
         const avgViewStr = avgViews > 1000 ? (avgViews / 1000).toFixed(1) + 'K' : avgViews.toLocaleString();
 
-        document.querySelector('.stat-num').textContent = channelData.subscriberCount.toLocaleString();
-        document.querySelector('.stat-num:nth-child(2)').textContent = channelData.viewCount.toLocaleString();
-        document.querySelector('.stat-num:nth-child(3)').textContent = channelData.videoCount;
-        document.querySelector('.stat-num:nth-child(4)').textContent = formatDuration(avgViews * 1); // Placeholder
-        document.querySelector('.stat-num:nth-child(4)').textContent = avgViewStr + ' vistas/video';
+        const statNums = document.querySelectorAll('.stat-num');
+        statNums[0].textContent = channelData.subscriberCount.toLocaleString();
+        statNums[1].textContent = channelData.viewCount.toLocaleString();
+        statNums[2].textContent = channelData.videoCount;
+        statNums[3].textContent = avgViewStr + ' vistas/video';
 
-        // Generate insights
         generateInsights();
-    }
-
-    function formatDuration(seconds) {
-        if (seconds < 60) return seconds + 's';
-        return Math.round(seconds / 60) + 'm';
     }
 
     function generateInsights() {
@@ -1681,7 +1679,7 @@
     // ── Hashtags ──
     const hashtagData = {
         tiktok: {
-            gameplay: { core: ['#valorant', '#valorantesp', '#valorantclips', '#gaming'], niche: ['#clutch', '#ace', '#gameplay', '#valorantmoments'], growth: ['#fyp', '#parati', '#viral', '#foryou'], trending: ['#esports', '#pcgaming', 'fps', '#gamertiktok'] },
+            gameplay: { core: ['#valorant', '#valorantesp', '#valorantclips', '#gaming'], niche: ['#clutch', '#ace', '#gameplay', '#valorantmoments'], growth: ['#fyp', '#parati', '#viral', '#foryou'], trending: ['#esports', '#pcgaming', '#fps', '#gamertiktok'] },
             road: { core: ['#valorant', '#valorantesp', '#roadtoimmortal', '#ranked'], niche: ['#ascendant', '#immortal', '#rankup', '#valorantranked'], growth: ['#fyp', '#parati', '#viral', '#gaming'], trending: ['#improvement', '#dedication', '#grind'] },
             tips: { core: ['#valorant', '#valoranttips', '#valorantesp', '#valorantguide'], niche: ['#gamingtips', '#aimtraining', '#crosshair', '#rankedup'], growth: ['#fyp', '#parati', '#viral', '#learnontiktok'], trending: ['#tutorial', '#tipstricks', '#guide'] },
             funny: { core: ['#valorant', '#valorantesp', '#funny', '#valorantfunny'], niche: ['#fail', '#rage', '#toxicvalorant', '#gamermoments'], growth: ['#fyp', '#parati', '#viral', '#comedy'], trending: ['#funnygaming', '#meme', '#humor'] },
