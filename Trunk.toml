@@ -1,0 +1,15 @@
+[build]
+target = "index.html"
+dist = "dist"
+filehash = true
+
+[serve]
+addresses = ["127.0.0.1"]
+port = 8080
+open = false
+no_autoreload = true
+
+[[hooks]]
+stage = "post_build"
+command = "node"
+command_arguments = ["scripts/externalize-inline.mjs"]

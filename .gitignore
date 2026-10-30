@@ -1,0 +1,5 @@
+/target
+/dist
+/.shots
+/.hallmark
+.DS_Store
